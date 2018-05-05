@@ -61,6 +61,7 @@ int separaItems (char * expresion,   // Palabras a separar
   if (pp==NULL) return -1;              // de punteros
 
   pp[0] = expresion;  // El primer parametro es facil
+  //printf ("*************************** %s ***********************",expresion);
 
   for (i=1, j=1; expresion[i]!='\0'; i++)  // Localizar los
     if (expresion[i]!=' ' &&             // demas parametros,

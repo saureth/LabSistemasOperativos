@@ -10,12 +10,12 @@
 #include <signal.h>
 
 void ImprimirCarpeta();
-int micp(const char *to, const char *from);
+int MiCp(const char *from, const char *to);
 void MyEcho(const char *msj);
 void MyClr();
 void MyTime();
-void LeerTexto(char* ruta, char* cadena);
-void kill_p(int ipid);
+void LeerTexto(char* cadena, char* ruta);
+void kill_p(int s, int ipid);
 /*
 int main(void)
 {
@@ -144,7 +144,7 @@ void MyTime(){
 }
 
 /////////////////////////////////////////////////////////////   Leer txt linea por línea
-void LeerTexto(char* ruta, char* cadena)
+void LeerTexto(char* cadena, char* ruta)
 {
     FILE *fp;
     char *line = NULL;
@@ -170,9 +170,12 @@ void LeerTexto(char* ruta, char* cadena)
 
 /////////////////////////////////////////////////////////////   Kill process
 
-void kill_p(int ipid)
+void kill_p(int s, int ipid)
 {
     pid_t pid=ipid;
-    kill(pid,SIGKILL);
-    printf("proceso terminado");
+    int a = kill(pid,s);
+    
+    printf("La señal fue enviada al proceso: %d",ipid);
+
+    
 }
