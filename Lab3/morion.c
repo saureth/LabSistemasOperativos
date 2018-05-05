@@ -168,6 +168,8 @@ void LeerTexto(char* ruta, char* cadena)
    free(line);
 }
 
+/////////////////////////////////////////////////////////////   Kill process
+
 void kill_p(int ipid)
 {
     pid_t pid=ipid;
