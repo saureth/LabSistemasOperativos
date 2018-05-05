@@ -16,10 +16,10 @@ void MyClr();
 void MyTime();
 void LeerTexto(char* ruta, char* cadena);
 void kill_p(int ipid);
-
+/*
 int main(void)
 {
-    /*
+    
     Ejemplos  de uso 
 
     MyClr();
@@ -43,10 +43,10 @@ int main(void)
     micp(origen, destino);
 ***********************************************************
     
-    */
+    
 
     return 0;
-}
+}*/
 
 /////////////////////////////////////////////////////////////   Imprimir carpeta
 void ImprimirCarpeta(){

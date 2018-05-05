@@ -1,8 +1,12 @@
+#define _POSIX_SOURCE
+#include <unistd.h>
+#undef _POSIX_SOURCE
 #include <stdio.h>
-#include <stdlib.h>
+#include <fcntl.h>
+#include <errno.h>
 #include <string.h>
-#include "parser.h"
-#define TAM 100
+#include <time.h>
+#include "morion.h"
 
 int main ()
 {
