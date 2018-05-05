@@ -1,27 +1,39 @@
-#define _POSIX_SOURCE
+//#define _POSIX_SOURCE
 #include <unistd.h>
-#undef _POSIX_SOURCE
+//#undef _POSIX_SOURCE
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
 #include <time.h>
-
+#include <stdlib.h>
+#include <signal.h>
 
 void ImprimirCarpeta();
 int micp(const char *to, const char *from);
 void MyEcho(const char *msj);
 void MyClr();
 void MyTime();
+void LeerTexto(char* ruta, char* cadena);
+void kill_p(int ipid);
 
-int main(void){
-    MyClr();
-    ImprimirCarpeta();
-    MyEcho("\nHola\n");
-    MyTime();
+int main(void)
+{
     /*
-    Ejemplo de uso de micp
+    Ejemplos  de uso 
 
+    MyClr();
+
+    ImprimirCarpeta();
+
+    MyEcho("\nHola\n");
+
+    MyTime();
+
+    LeerTexto("/home/Estudiantes/adrian.martinez/Desktop/SO/LabSistemasOperativos/Lab3/borrrar.txt", "no");
+    
+    kill_p(7547);
+***********************************************************
     char origen[1024];
     strcpy(origen, cwd);
     strcat(origen, "/morion.c");
@@ -29,13 +41,14 @@ int main(void){
     strcpy(destino, cwd);
     strcat(destino, "/caso.c");
     micp(origen, destino);
+***********************************************************
     
     */
 
     return 0;
 }
 
-
+/////////////////////////////////////////////////////////////   Imprimir carpeta
 void ImprimirCarpeta(){
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) != NULL)
@@ -45,6 +58,7 @@ void ImprimirCarpeta(){
 }
 
 
+/////////////////////////////////////////////////////////////   Copiar Archivos
 int MiCp(const char *from, const char *to)
 {
     int fd_to, fd_from;
@@ -105,17 +119,20 @@ int MiCp(const char *from, const char *to)
 }
 
 
+/////////////////////////////////////////////////////////////   Imprimir mensaje en consola
 void MyEcho(const char *msj)
 {
     fprintf(stdout, "%s",msj);
 }
 
+/////////////////////////////////////////////////////////////   Limpiar consola
 void MyClr()
 {
   const char *CLEAR_SCREEN_ANSI = "\e[1;1H\e[2J";
   write(STDOUT_FILENO, CLEAR_SCREEN_ANSI, 12);
 }
 
+/////////////////////////////////////////////////////////////   Tiempo actual
 void MyTime(){
     time_t rawtime;
     struct tm * timeinfo;
@@ -124,4 +141,36 @@ void MyTime(){
     timeinfo = localtime ( &rawtime );
     printf ( "%s", asctime (timeinfo) );
   
+}
+
+/////////////////////////////////////////////////////////////   Leer txt linea por línea
+void LeerTexto(char* ruta, char* cadena)
+{
+    FILE *fp;
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read;
+
+   fp = fopen(ruta, "r");
+    if (fp == NULL){
+        printf("Error:\n");
+    }
+        
+
+   while ((read = getline(&line, &len, fp)) != -1) {
+
+        if(strstr(line, cadena) != NULL) {
+            printf("%s", line);
+        }
+        
+    }
+
+   free(line);
+}
+
+void kill_p(int ipid)
+{
+    pid_t pid=ipid;
+    kill(pid,SIGKILL);
+    printf("proceso terminado");
 }
