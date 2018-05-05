@@ -122,6 +122,15 @@ int main(){
                 }else{
                     ImprimirError(str);
                 }
+            }else if(strcmp(str,"psinfo")== 0)
+            {
+                if(num==1)
+                {
+                    execl("./psinf", items[0],NULL);
+                    printf("\n");
+                }else{
+                    ImprimirError(str);
+                }
             }
 
         }
