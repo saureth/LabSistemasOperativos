@@ -14,8 +14,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <pthread.h>
+#include <semaphore.h>
 
 #define MAX_BUFFER 100
+#define BUFFER_SIZE 2
 //#define DEBUG
 typedef struct p_ {
   int pid;
@@ -29,12 +32,19 @@ typedef struct p_ {
   int nonvoluntary_ctxt_switches;
 } proc_info;
 
-void load_info(int pid);
+struct retornarPID{
+  int miPid;
+};
+
+void* load_info(void* pid);
 void print_info(proc_info* pi);
-proc_info retorna_estructura(char* pid);
   
 proc_info* all_proc;
 int iterador = 0;
+int iterador2 = 0;
+sem_t semaforo;
+sem_t semaforoP;
+sem_t semaforoC;
 
 int main(int argc, char *argv[]){
   int i;
@@ -47,20 +57,33 @@ int main(int argc, char *argv[]){
     exit(1);
   }
   /*Allocate memory for each process info*/
-  all_proc = (proc_info *)malloc(sizeof(proc_info)*n_procs);
+  all_proc = (proc_info *)malloc(sizeof(proc_info)*BUFFER_SIZE);
   assert(all_proc!=NULL);
-  
+    
+
+  pthread_t id_Hilos[n_procs];
+  struct retornarPID misPID[n_procs];
+  sem_init(&semaforo,0,1);
+  sem_init(&semaforoP,0,n_procs);
+  sem_init(&semaforoC,0,0);
   // Get information from status file
   for(i = 0; i < n_procs; i++){
     int pid = atoi(argv[i+1]);
-    load_info(pid);
+    misPID[i].miPid = pid;
+    pthread_create(&id_Hilos[i],NULL,&load_info,&misPID[i]);
+    //pthread_join(id_Hilos[i],NULL);
+    //load_info(pid);
   }
   
   //print information from all_proc buffer
   for(i = 0; i < n_procs; i++){
-    print_info(&all_proc[i]);
+    sem_wait(&semaforoC);
+    print_info(&all_proc[iterador2%BUFFER_SIZE]);
+    iterador2++;
+    sem_post(&semaforoP);
   }
 
+  sem_destroy(&semaforo);
   // free heap memory
   free(all_proc);
   
@@ -75,18 +98,22 @@ int main(int argc, char *argv[]){
  *  \param pid    (in)  process id 
  *  \param myinfo (out) process info struct to be filled
  */
-void load_info(int pid){
+void* load_info(void* pid){
+  sem_wait(&semaforoP);
+  sem_wait(&semaforo);
   FILE *fpstatus;
   char buffer[MAX_BUFFER]; 
   char path[MAX_BUFFER];
   char* token;
-  
-
-  sprintf(path, "/proc/%d/status", pid);
+  struct retornarPID* auxPID = (struct retornarPID*) pid;
+  int realPID = auxPID->miPid;
+  sprintf(path, "/proc/%d/status", realPID);
   fpstatus = fopen(path, "r");
   assert(fpstatus != NULL);
-  proc_info* proceso = &all_proc[iterador];
-  proceso->pid = pid;
+
+  proc_info* proceso = &all_proc[iterador%BUFFER_SIZE];
+
+  proceso->pid = realPID;
   while (fgets(buffer, MAX_BUFFER, fpstatus)) {
     token = strtok(buffer, ":\t");
     if (strstr(token, "Name")){
@@ -117,6 +144,8 @@ void load_info(int pid){
   }
   fclose(fpstatus);
   iterador++;
+  sem_post(&semaforo);
+  sem_post(&semaforoC);
 }
 /**
  *  \brief print_info
@@ -135,15 +164,4 @@ void print_info(proc_info* pi){
   printf("TamaÃ±o de la memoria en la regiÃ³n STACK: %s", pi->vmstk);
   printf("NÃºmero de cambios de contexto realizados (voluntarios"
 	 "- no voluntarios): %d  -  %d\n\n", pi->voluntary_ctxt_switches,  pi->nonvoluntary_ctxt_switches);
-}
-
-proc_info retorna_estructura(char* pid){
-    proc_info* infoProceso;
-    FILE *fpstatus;
-    char path1[MAX_BUFFER];
-    sprintf(path1, "/proc/%d/status", pid);
-    fpstatus = fopen(path1, "r");
-    assert(fpstatus != NULL);
-    infoProceso-> pid = pid;
-
 }
